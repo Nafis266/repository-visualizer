@@ -23,12 +23,3 @@ def scan_repository(repo_path):
                 })
     return files
 
-
-repo_path = "./ex_repo"
-
-repo_files = scan_repository(repo_path)
-
-print("Files found:")
-
-for file in repo_files:
-    print(file["path"])
