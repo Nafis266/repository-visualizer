@@ -1,5 +1,6 @@
 from reposcan import scan_repository
 from depend import extract_dependencies
+from astcreator import extract_functions
 
 repo_files = scan_repository("./ex_repo")
 
@@ -11,3 +12,6 @@ for file in paths:
     print("depends on: ")
     for d in deps:
         print(d)
+
+    functions = extract_functions(file)
+    print(functions)

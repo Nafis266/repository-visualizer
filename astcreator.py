@@ -2,48 +2,53 @@ from tree_sitter import Language,Parser
 import sys
 import tree_sitter_c
 
-fname = sys.argv[1]
+def extract_functions(fname):
 
-with open(fname) as f:
-    code = f.read()
+    with open(fname) as f:
+        code = f.read()
 
-C_LANGUAGE = Language(tree_sitter_c.language())
-parser = Parser(C_LANGUAGE)
+    C_LANGUAGE = Language(tree_sitter_c.language())
+    parser = Parser(C_LANGUAGE)
 
-tree = parser.parse(bytes(code,"utf8"))
+    tree = parser.parse(bytes(code,"utf8"))
 
-root = tree.root_node
+    root = tree.root_node
 
-def get_text(node):
-    return code[node.start_byte:node.end_byte]
+    def get_text(node):
+        return code[node.start_byte:node.end_byte]
 
-def walk(node):
-    if node.type == "function_definition":
-        declarator = node.child_by_field_name("declarator")
-        return_type = get_text(node.child_by_field_name("type"))
+    functions = []
 
-        name = None
-        parameters = []
+    def walk(node):
+        if node.type == "function_definition":
+            declarator = node.child_by_field_name("declarator")
+            return_type = get_text(node.child_by_field_name("type"))
 
-        if declarator:
-            name_node = declarator.child_by_field_name("declarator")
-            params_node = declarator.child_by_field_name("parameters")
+            name = None
+            parameters = []
 
-            if name_node:
-                name = get_text(name_node)
+            if declarator:
+                name_node = declarator.child_by_field_name("declarator")
+                params_node = declarator.child_by_field_name("parameters")
 
-            if params_node:
-                for param in params_node.named_children:
-                    parameters.append(get_text(param))
-    
-        print("function: ",name)
-        print("return type: ", return_type)
-        print("parameters: ", parameters)
-        print()
-    
-    for child in node.children:
-        walk(child)
+                if name_node:
+                    name = get_text(name_node)
 
-walk(root)
+                if params_node:
+                    for param in params_node.named_children:
+                        parameters.append(get_text(param))
+        
+            functions.append({
+                "function_name": name,
+                "return_type": return_type,
+                "parameters": parameters
+            })
+        
+        for child in node.children:
+            walk(child)
+
+    walk(root)
+
+    return functions
 
 
