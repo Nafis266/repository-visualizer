@@ -20,14 +20,25 @@ def get_text(node):
 def walk(node):
     if node.type == "function_definition":
         declarator = node.child_by_field_name("declarator")
+        return_type = get_text(node.child_by_field_name("type"))
+
         name = None
+        parameters = []
 
         if declarator:
             name_node = declarator.child_by_field_name("declarator")
+            params_node = declarator.child_by_field_name("parameters")
+
             if name_node:
                 name = get_text(name_node)
+
+            if params_node:
+                for param in params_node.named_children:
+                    parameters.append(get_text(param))
     
         print("function: ",name)
+        print("return type: ", return_type)
+        print("parameters: ", parameters)
         print()
     
     for child in node.children:
