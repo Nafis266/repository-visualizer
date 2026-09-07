@@ -9,9 +9,7 @@ paths = [file["path"] for file in repo_files]
 for file in paths:
     deps = extract_dependencies(file,paths)
     print("\nFILE: ",file)
-    print("depends on: ")
-    for d in deps:
-        print(d)
+    print("depends on: ","NULL" if not deps else deps)
 
     functions = extract_functions(file)
-    print(functions)
+    print("functions: ",functions if functions else "NULL")
