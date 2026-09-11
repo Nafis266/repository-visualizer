@@ -1,9 +1,9 @@
 from tree_sitter import Language,Parser
 import sys
 import tree_sitter_c
+import ast
 
-def extract_functions(fname):
-
+def extract_c_functions(fname):
     with open(fname) as f:
         code = f.read()
 
@@ -11,14 +11,12 @@ def extract_functions(fname):
     parser = Parser(C_LANGUAGE)
 
     tree = parser.parse(bytes(code,"utf8"))
-
     root = tree.root_node
 
     def get_text(node):
         return code[node.start_byte:node.end_byte]
 
     functions = []
-
     def walk(node):
         if node.type == "function_definition":
             declarator = node.child_by_field_name("declarator")
@@ -51,4 +49,24 @@ def extract_functions(fname):
 
     return functions
 
+def extract_py_functions(fname):
+    with open(fname) as f:
+        code = f.read()
+
+    tree = ast.parse(code)
+
+    functions = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.FunctionDef):
+            parameters = []
+
+            for a in node.args.args:
+                parameters.append(a.arg)
+
+            functions.append({
+                "function_name": node.name,
+                "parameters": parameters
+            })
+
+    return functions
 
