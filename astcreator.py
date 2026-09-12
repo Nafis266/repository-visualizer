@@ -56,7 +56,9 @@ def extract_py_functions(fname):
     tree = ast.parse(code)
 
     functions = []
-    for node in ast.walk(tree):
+    classes = []
+
+    for node in tree.body:
         if isinstance(node, ast.FunctionDef):
             parameters = []
 
@@ -75,4 +77,35 @@ def extract_py_functions(fname):
             })
 
     return functions
+
+def extract_py_classes(fname):
+    with open(fname) as f:
+        code = f.read()
+
+    tree = ast.parse(code)
+
+    classes = []
+
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ClassDef):
+            methods = []
+
+            for child in node.body:
+                if isinstance(child, ast.FunctionDef):
+                    parameters = []
+
+                    for a in child.args.args:
+                        parameters.append(a.arg)
+
+                    methods.append({
+                        "function_name": child.name,
+                        "parameters": parameters
+                    })
+
+            classes.append({
+                "class_name": node.name,
+                "methods": methods
+            })
+
+    return classes
 
