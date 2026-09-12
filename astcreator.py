@@ -63,8 +63,14 @@ def extract_py_functions(fname):
             for a in node.args.args:
                 parameters.append(a.arg)
 
+            return_type = None
+
+            if node.returns:
+                return_type = ast.unparse(node.returns)
+
             functions.append({
                 "function_name": node.name,
+                "return_type": return_type,
                 "parameters": parameters
             })
 

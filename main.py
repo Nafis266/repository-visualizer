@@ -24,6 +24,12 @@ for file in paths:
     else:
         print("functions: ")
         for fn in functions:
-            print(f"    function: {fn['function_name']}")
-            print(f"    return type: {fn['return_type']}")
-            print(f"    parameters: {fn['parameters']}\n")
+            name = fn['function_name']
+            r_type = fn['return_type']
+            p = fn['parameters']
+
+            params = ", ".join(p)
+
+            print(f"- {r_type if r_type is not None else ""} {name}({params})")
+
+
