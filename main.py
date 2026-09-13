@@ -1,13 +1,19 @@
 from reposcan import scan_repository
 from depend import extract_dependencies
 from astcreator import extract_c_functions, extract_py_functions, extract_py_classes
+import sys
+from graph import create_graph
 
-repo_files = scan_repository("./ex_repo")
+repo = sys.argv[1]
+repo_files = scan_repository(repo)
 
 paths = [file["path"] for file in repo_files]
 
+alldeps = {}
+
 for file in paths:
     deps = extract_dependencies(file,paths)
+    alldeps[file] = deps
     print("\nFILE: ",file)
     print("depends on: ",deps if deps else "NULL")
     functions = [] 
@@ -43,4 +49,4 @@ for file in paths:
                 params = ", ".join(m['parameters'])
                 print(f"    - {name}({params})")
 
-
+create_graph(alldeps)
