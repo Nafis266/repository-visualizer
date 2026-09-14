@@ -3,6 +3,7 @@ from depend import extract_dependencies
 from astcreator import extract_c_functions, extract_py_functions, extract_py_classes
 import sys
 from graph import create_graph
+import json
 
 repo = sys.argv[1]
 repo_files = scan_repository(repo)
@@ -10,12 +11,11 @@ repo_files = scan_repository(repo)
 paths = [file["path"] for file in repo_files]
 
 alldeps = {}
+all_data = []
 
 for file in paths:
     deps = extract_dependencies(file,paths)
     alldeps[file] = deps
-    print("\nFILE: ",file)
-    print("depends on: ",deps if deps else "NULL")
     functions = [] 
     classes = []
 
@@ -26,27 +26,22 @@ for file in paths:
         classes = extract_py_classes(file)
     else:
         functions = []
-    
-    if not functions:
-        print("functions: NULL")
-    else:
-        print("functions: ")
-        for fn in functions:
-            name = fn['function_name']
-            r_type = fn['return_type']
-            params = ", ".join(fn['parameters'])
 
-            print(f"- {r_type+" " if r_type is not None else ""}{name}({params})")
+    f_data = {
+        "path": file,
+        "dependencies": deps,
+        "functions": functions,
+        "classes": classes
+    }
 
-    print()
-    if classes:
-        print("classes: ")
-        for c in classes:
-            print(f"- {c['class_name']}")
+    all_data.append(f_data)
 
-            for m in c['methods']:
-                name = m['function_name']
-                params = ", ".join(m['parameters'])
-                print(f"    - {name}({params})")
+output = {
+    "repository": repo,
+    "files": all_data
+}
+
+with open("repo_data.json","w") as f:
+    json.dump(output,f)
 
 create_graph(alldeps)
